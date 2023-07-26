@@ -7,24 +7,28 @@ use std::collections::HashMap;
 use futures::future;
 use tokio;
 use serde_json::json;
+use strum::{EnumIter, FromRepr, IntoEnumIterator};
 
 // https://www.land.mlit.go.jp/webland_english/note.html
 // https://www.land.mlit.go.jp/webland/api.html
-
 // https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    for n in 1..=47 {
-        let padded = n.to_string();
-        let padded = format!("{:0>2}", &padded);
+    let mut prefecture_to_cities: HashMap<Prefecture, Vec<CityData>> = HashMap::new();
+
+    // for p in 1..=47 {
+    for p in Prefecture::iter() {
+        let padded = format!("{:0>2?}", p as u8);
         // let api_address = "https://www.land.mlit.go.jp/webland/api/CitySearch?area=";
         let api_address = "https://www.land.mlit.go.jp/webland_english/api/CitySearch?area=";
         let url = [api_address, &padded].join("");
-        println!("{url}");
+        // println!("{url}");
         let resp = get_request(&url).await?;
-        println!("{:#?}", &resp);
-        
+        // println!("{:#?}", &resp);
+        prefecture_to_cities.insert(p, resp.data);
     }
+
+    println!("{:#?}", &prefecture_to_cities);
 
     Ok(())
 }
@@ -46,10 +50,6 @@ async fn get_request(url: &str) -> Result<CitySearchReponse, Error> {
         .await?
         .json()
         .await?;
-    // println!("Status: {}", response.status());
-
-    // let body = response.text().await?;
-    // println!("Body:\n{:#}", body);
 
     Ok(resp)
 }
@@ -175,6 +175,7 @@ fn get_eng_jpn_prefectures() -> HashMap<&'static str, &'static str> {
 
 
 #[repr(u8)]
+#[derive(FromRepr, EnumIter, Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Prefecture {
     Hokkaido = 01,
     Aomori = 02,
