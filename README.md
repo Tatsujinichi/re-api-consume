@@ -1,3 +1,5 @@
+GNU GPLv3 License. See LICENSE
+
 https://www.land.mlit.go.jp/webland_english/note.html
 https://www.land.mlit.go.jp/webland/api.html
 https://stackoverflow.com/questions/51044467/how-can-i-perform-parallel-asynchronous-http-get-requests-with-reqwest
